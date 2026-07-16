@@ -96,9 +96,9 @@ framework everything else builds on (LangChain), then LangGraph, then real agent
 |----:|-------|
 | 21 | **LangChain fundamentals** — chat models, prompt templates, LCEL (`prompt \| model \| parser`), output parsers, runnables, memory (LangChain 1.x) ✅ |
 | 22 | **LangChain in practice** — RAG **with LangChain** (splitters, `Chroma` + local embeddings, retrievers, an LCEL RAG chain) + a **Streamlit × LangChain** chatbot & "chat with your docs" app ✅ |
-| 23 | **LangGraph** — state machines for AI: state/nodes/edges, branching (conditional edges), loops (cycles), reducers (`add_messages`), memory (checkpointer + `thread_id`) ✅ |
-| 24 | Tool use / function calling — giving a model tools (`@tool`, `bind_tools`), first principles |
-| 25 | Building a ReAct agent (`create_agent`) — research + summarize tools |
+| 23 | **LangChain tools + Chat With Your Database** — tools / function calling (`@tool`, `bind_tools`), the hand-written tool-calling loop, and a **text-to-SQL agent** over a SQLite store (CLI + Streamlit) ✅ |
+| 24 | **LangGraph** — state machines for AI: state/nodes/edges, branching (conditional edges), loops (cycles), reducers (`add_messages`), memory (checkpointer + `thread_id`) ✅ |
+| 25 | Building a ReAct agent (`create_agent`) — combines Day 23's tools + Day 24's graph engine |
 | 26 | CrewAI — role-based multi-agent, made simple |
 | 27 | AutoGen (Microsoft) — conversation-based multi-agent |
 | 28 | Framework comparison workshop — same agent in 3 frameworks, pick which fits |
@@ -113,9 +113,11 @@ tools. Traced in Langfuse. Deployed free.
 
 > **Numbering note (2026-07):** Phase 3 was pulled forward to Day 21 (see the Phase 2 plan-change
 > note). A **LangChain-in-practice day (RAG + Streamlit) was then inserted at Day 22**, pushing
-> LangGraph → 23 and every later Phase-3 day +1 (Phase 3 is now **21–32**). Phase 4's day numbers
-> below still reflect the old schedule and will be reconciled in a later pass; treat Phase 4 as
-> "after Phase 3", not as fixed dates.
+> LangGraph → 23 and every later Phase-3 day +1. **Then tools were pulled *before* LangGraph:** a
+> **Tools + "Chat With Your Database" day was inserted at Day 23**, moving LangGraph → 24. (Tools had
+> been the planned Day 24, so this is effectively a swap plus a project — Phase 3 stays **21–32**.)
+> Phase 4's day numbers below still reflect the old schedule and will be reconciled in a later pass;
+> treat Phase 4 as "after Phase 3", not as fixed dates.
 
 ---
 

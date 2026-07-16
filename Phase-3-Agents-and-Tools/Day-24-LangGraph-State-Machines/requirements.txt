@@ -1,4 +1,4 @@
-# Day 23 - LangGraph: State Machines for AI
+# Day 24 - LangGraph: State Machines for AI
 # Install with the real CPython (see repo CLAUDE.md), then run any module.
 langgraph
 langchain-groq

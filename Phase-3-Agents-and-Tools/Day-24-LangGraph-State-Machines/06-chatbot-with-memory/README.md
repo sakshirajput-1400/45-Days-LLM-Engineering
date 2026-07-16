@@ -86,7 +86,7 @@ separate — the memory mechanics don't need a model.
 ## Where this goes next
 
 A chatbot loops *you → model → you*. An **agent** loops *model → tool → model* until the model has the
-answer — same graph machinery, but the model also gets **tools** it can call. That's the next two days:
+answer — same graph machinery, but the model also gets **tools** it can call (you met tools on Day 23):
 
-➡ Next: **Day 24 — Tool use / function calling** (`@tool`, `bind_tools`), then **Day 25** wires tools
-into a full ReAct agent graph.
+➡ Next: **Day 25 — Building a ReAct agent** — wire Day 23's tools into today's graph engine so the
+model drives the *model → tool → model* loop itself.

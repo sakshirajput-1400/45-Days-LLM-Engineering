@@ -55,7 +55,7 @@ class ChatState(TypedDict):
 - **Appends** new messages to the history (like `add`), **and**
 - **Upgrades** loose tuples like `("human", "hi")` into proper `HumanMessage` / `AIMessage` objects,
 - **Updates by id** — a message with an existing id replaces that one instead of duplicating (matters
-  once tools stream partial messages; Day 24–25).
+  once tools stream partial messages; Day 25).
 
 ## `MessagesState`: the same thing, prewritten
 

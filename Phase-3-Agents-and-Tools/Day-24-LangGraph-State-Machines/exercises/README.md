@@ -1,4 +1,4 @@
-# Day 23 · Exercises
+# Day 24 · Exercises
 
 Build two small LangGraph programs yourself. Each has a stub with `# TODO`s and a worked
 `_solution.py`. **Both run without a key** — the graph machinery (branching, loops, state) is pure

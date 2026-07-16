@@ -1,7 +1,8 @@
-# Day 23 — LangGraph: State Machines for AI
+# Day 24 — LangGraph: State Machines for AI
 
-**Phase 3 · Agents & Tools — Day 3.** Days 21–22 gave us LangChain and put it to work (LCEL, RAG, a
-Streamlit chatbot). The heart of it was LCEL: `prompt | model | parser` — a
+**Phase 3 · Agents & Tools — Day 4.** Days 21–23 gave us LangChain (LCEL, RAG, a Streamlit chatbot)
+and **tools** — function calling plus a hand-written tool-calling loop (Day 23's "Chat With Your
+Database"). The heart of the chain work was LCEL: `prompt | model | parser` — a
 **straight line**, data flowing left → right, once. That's perfect until your app needs to **loop**
 ("try again if that failed"), **branch** ("route billing questions here, tech questions there"), or
 **remember where it is**. A `|` chain can't do any of those. **LangGraph** can.
@@ -23,8 +24,8 @@ A chain is a graph with no choices: A → B → C, always, once. Real agents nee
 | Keep **memory** of the conversation across calls | painful | ✅ checkpointer + `thread_id` |
 | Let a model **decide** the next step (an agent!) | ❌ | ✅ (Day 25) |
 
-LangGraph is the engine under real agents. Today we learn the engine; Day 24 adds **tools**, Day 25
-wires it into a full **ReAct agent**.
+LangGraph is the engine under real agents. Day 23 gave us **tools**; today we learn the **engine**
+that loops them; Day 25 wires the two together into a full **ReAct agent**.
 
 ## The mental model (learn these 3 words)
 - **State** — one shared dictionary that every step can read and write. It flows through the graph.
@@ -107,5 +108,5 @@ Do both in [`exercises/`](exercises/README.md):
 > Nodes are just functions, edges are just wires, and the state is just a dict. Once your app can
 > *decide what to do next*, it stops being a Q&A bot and starts being an **agent**.
 
-➡ Next: **Day 24 — Tool use / function calling** — give the model real tools (`@tool`, `bind_tools`)
-so a graph node can *do* things, not just talk.
+➡ Next: **Day 25 — Building a ReAct agent** — combine Day 23's tools with today's graph engine so a
+model can *decide* which tool to call, loop until done, and act on its own (`create_agent`).

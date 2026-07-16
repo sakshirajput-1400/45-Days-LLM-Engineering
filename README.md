@@ -59,7 +59,7 @@ Days **8–15** begin the AI track: HTTP/`requests`, async, `dotenv`, Pydantic, 
 CLI chatbot (conversation memory), embeddings, semantic search, Chroma, Streamlit → **Mini-project 1: Chat With Your Documents** (Day 20).
 
 ### Phase 3 — Agents & Tools (Days 21–32)
-LangChain fundamentals (LCEL, prompts, parsers, memory), LangChain in practice (RAG + Streamlit apps), LangGraph, function calling & tools, ReAct agents, CrewAI, AutoGen, observability (Langfuse), guardrails → **Mini-project 3: Research Agent**.
+LangChain fundamentals (LCEL, prompts, parsers, memory), LangChain in practice (RAG + Streamlit apps), tools & function calling + a "Chat With Your Database" text-to-SQL agent, LangGraph, ReAct agents, CrewAI, AutoGen, observability (Langfuse), guardrails → **Mini-project 3: Research Agent**.
 
 ### Phase 4 — Capstone + Placement (Days 39–46)
 Capstone build sprint, deployment, demo day, resume/portfolio.

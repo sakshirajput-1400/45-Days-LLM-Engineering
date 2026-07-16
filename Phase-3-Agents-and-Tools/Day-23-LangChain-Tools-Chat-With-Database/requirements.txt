@@ -1,0 +1,9 @@
+# Day 23 - LangChain Tools + Chat With Your Database
+# Install with the real CPython (see repo CLAUDE.md), then run any module.
+# Modules 01-02 and the db.py/tools.py layers need only langchain-core (+ stdlib
+# sqlite3). The chat apps add langchain-groq and streamlit.
+langchain
+langchain-core
+langchain-groq
+streamlit
+python-dotenv

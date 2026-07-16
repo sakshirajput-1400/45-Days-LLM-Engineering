@@ -1,0 +1,10 @@
+# Starter kit -- Chat With Your Database
+# Install with the real CPython (see repo CLAUDE.md):
+#   pip install -r requirements.txt
+# db.py / tools.py need only langchain-core + stdlib sqlite3.
+# The chat brain and UIs add langchain-groq and streamlit.
+langchain
+langchain-core
+langchain-groq
+streamlit
+python-dotenv
