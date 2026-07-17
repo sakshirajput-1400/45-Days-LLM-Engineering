@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Why You Freeze at a Blank File · Softpro School of AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --bg:#211f1d; --slide:#ffffff; --cream:#fbf1e6; --cream2:#fdf8f1;
+    --ink:#2c2a28; --ink-soft:#4f463f; --muted:#8a7f73; --line:#efe3d4;
+    --primary:#e8590c; --primary2:#fb8b3d; --gold:#d99000; --steel:#4e6e81; --olive:#6b8e23; --berry:#c0392b;
+    --radius:24px;
+    --shadow:0 30px 80px -20px rgba(20,12,4,.45),0 8px 24px -12px rgba(20,12,4,.3);
+    --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:radial-gradient(900px 600px at 12% 0%,#2e2a25 0%,transparent 55%),
+               radial-gradient(900px 600px at 100% 100%,#2a201a 0%,transparent 55%),var(--bg);
+    overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,44px)}
+  .slide{display:none;width:min(1160px,96vw);height:min(700px,92vh);background:
+      radial-gradient(1100px 480px at 88% -12%,rgba(232,89,12,.06),transparent 60%),var(--slide);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(28px,5vw,60px);
+    overflow:hidden;position:relative;flex-direction:column;justify-content:center}
+  .slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide.active>*{animation:fade .6s both}.slide.active>*:nth-child(2){animation-delay:.07s}
+  .slide.active>*:nth-child(3){animation-delay:.14s}.slide.active>*:nth-child(4){animation-delay:.21s}
+  .slide.active>*:nth-child(5){animation-delay:.28s}.slide.active>*:nth-child(6){animation-delay:.35s}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h1{font-size:clamp(2.1rem,5.2vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin-bottom:18px}
+  p{font-size:clamp(1rem,1.7vw,1.22rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+  .lead{font-size:clamp(1.1rem,2vw,1.4rem)}
+  strong{color:var(--ink)}.muted{color:var(--muted)}
+  .grid{display:grid;gap:16px;margin-top:8px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:18px 20px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px -16px rgba(20,12,4,.35)}
+  .card h3{font-size:1.08rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.96rem;max-width:none}
+  .pill{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:7px 16px;font-size:.92rem;font-weight:600;color:var(--ink-soft);margin:5px 6px 0 0}
+  ul.clean{list-style:none;margin-top:10px}
+  ul.clean li{font-size:clamp(1rem,1.7vw,1.18rem);color:var(--ink-soft);line-height:1.5;padding:8px 0 8px 34px;position:relative}
+  ul.clean li::before{content:"";position:absolute;left:0;top:15px;width:14px;height:14px;border-radius:50%;
+    background:var(--primary);box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+  ul.clean li.x::before{background:var(--berry);box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+  ul.clean li.ok::before{background:var(--olive);box-shadow:0 0 0 4px rgba(107,142,35,.15)}
+  .fx{font-family:var(--mono);font-size:1rem;background:var(--cream);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin-top:10px;color:var(--ink);line-height:1.7;white-space:pre}
+  .action{background:linear-gradient(135deg,#fff,var(--cream2));border:2px solid var(--primary);
+    border-radius:20px;padding:22px 24px;margin-top:14px}
+  .action .tag{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .action p{font-size:1.12rem;color:var(--ink);font-weight:600;margin-top:6px;max-width:none}
+  .eg{background:var(--cream2);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:12px;padding:13px 16px;margin-top:14px}
+  .eg .tag{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+  .eg p{font-size:.98rem;max-width:none;margin:0;color:var(--ink-soft)}
+  .eg .mono{font-family:var(--mono)}
+  .eg code,.card code,p code{font-family:var(--mono);background:rgba(217,144,0,.12);padding:1px 5px;border-radius:5px;font-size:.9em;color:var(--ink)}
+  .card .ex{display:block;margin-top:8px;font-family:var(--mono);font-size:.82rem;color:var(--steel);
+    background:var(--cream2);border-radius:8px;padding:6px 9px;white-space:pre-wrap;line-height:1.5}
+  .cover{background:radial-gradient(1200px 500px at 20% -10%,rgba(232,89,12,.16),transparent 60%),
+      radial-gradient(900px 500px at 100% 120%,rgba(217,144,0,.12),transparent 55%),var(--slide)}
+  .brandbar{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--primary)}
+  .brandbar span{font-weight:700;letter-spacing:.02em}
+  .cover h1 em{font-style:normal;color:var(--primary)}
+  .footer-note{margin-top:auto;color:var(--muted);font-size:.95rem}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  .label{font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .loopbox{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;font-weight:600;color:var(--ink-soft)}
+  .loopbox .step{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.95rem}
+  .loopbox .step.bad{border-color:var(--berry);color:var(--berry)}
+  .loopbox .arr{color:var(--muted);font-size:1.2rem}
+  .bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--primary2));z-index:9;transition:width .3s}
+  .count{position:fixed;left:18px;bottom:14px;color:var(--cream);font-size:.85rem;font-weight:600;opacity:.8;z-index:9;font-variant-numeric:tabular-nums}
+  .nav{position:fixed;right:18px;bottom:14px;display:flex;gap:8px;z-index:9}
+  .nav button{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.2)}
+  .hint{position:fixed;right:18px;top:16px;color:var(--cream);font-size:.78rem;opacity:.5;z-index:9}
+  @media(max-width:640px){.g2,.g3,.twocol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="hint">→ / Space to advance · F for fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1 COVER -->
+  <section class="slide cover active">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Problem-Solving Bootcamp</span></div>
+    <div class="kicker">Programming in general · 30 minutes</div>
+    <h1>"I understand every solution.<br>Why can't I <em>write</em> one?"</h1>
+    <p class="lead" style="margin-top:18px">The most common wall in learning to program — why it happens, why it's not a talent problem, and the exact practice routine that breaks it.</p>
+    <div class="footer-note">Spoiler: you've been training the wrong muscle.</div>
+  </section>
+
+  <!-- 2 THE SYMPTOM -->
+  <section class="slide">
+    <div class="kicker">The symptom</div>
+    <h2>Sound familiar?</h2>
+    <ul class="clean">
+      <li class="x">You read a problem… and stare at a blank file. Nothing comes.</li>
+      <li class="x">You peek at the solution — and understand <strong>everything, instantly, in one go</strong>.</li>
+      <li class="x">"So I clearly get it… why couldn't I produce it?" You conclude you're bad at this.</li>
+    </ul>
+    <p style="margin-top:16px">This is <strong>the</strong> classic wall — so common it has a nickname: <strong>tutorial hell</strong>. Almost everyone who learns to program hits it. Almost nobody is told why it happens.</p>
+    <div class="eg"><span class="tag">The good news</span>
+      <p>Understanding solutions instantly means your comprehension is <em>fine</em>. The problem is precise, well-understood, and completely fixable — starting today.</p></div>
+  </section>
+
+  <!-- 3 TWO MUSCLES -->
+  <section class="slide">
+    <div class="kicker">The core issue</div>
+    <h2>Reading code and writing code are two different muscles</h2>
+    <div class="grid g2">
+      <div class="card"><h3>👀 Reading = recognition</h3><p>Every line arrives <em>with its context</em>. Your only job is to nod: "yes, that step makes sense." It's passive — like recognizing a face.<span class="ex">see: for ch in text: ...
+think: "ah yes, a loop. obviously."</span></p></div>
+      <div class="card"><h3>✍️ Writing = generation</h3><p>You must <strong>invent</strong> the steps from nothing: break the problem down, recall the right tool for each step, put them in order.<span class="ex">blank file.
+think: "...where do I even start?"</span></p></div>
+    </div>
+    <p style="margin-top:16px">Watching 100 solutions gives you 100 reps of <strong>recognition</strong> and <strong>zero</strong> reps of generation. That's why the solution "makes sense in one go" while the blank file stays blank.</p>
+  </section>
+
+  <!-- 4 ILLUSION OF COMPETENCE -->
+  <section class="slide">
+    <div class="kicker">Why it fools everyone</div>
+    <h2>The illusion of competence</h2>
+    <p>"It makes sense" <em>feels</em> exactly like "I could have done it." Psychologists have a name for this trap — the <strong>illusion of competence</strong>. The feeling is real; the skill isn't there yet.</p>
+    <div class="grid g2" style="margin-top:10px">
+      <div class="card"><h3>🏏 You already know this</h3><p>Watching Kohli bat, every shot looks obvious — <em>of course</em> he played that ball there. Hand you the bat and… nothing transfers. Watching trains the eye, not the arm.</p></div>
+      <div class="card"><h3>📖 Same trap, exams</h3><p>Re-reading a chapter feels like studying — it all "makes sense." Then the exam asks you to <em>produce</em> it from a blank page, and it's gone. Recognition ≠ recall.</p></div>
+    </div>
+    <p style="margin-top:14px" class="muted">Code is no different: the solution file is someone else's innings. Understanding it proves you can <em>follow</em> — not that you can <em>bat</em>.</p>
+  </section>
+
+  <!-- 5 TUTORIAL HELL LOOP -->
+  <section class="slide">
+    <div class="kicker">The trap, step by step</div>
+    <h2>The tutorial-hell loop</h2>
+    <div class="loopbox">
+      <span class="step">Try a problem</span><span class="arr">→</span>
+      <span class="step bad">Stuck (feels bad)</span><span class="arr">→</span>
+      <span class="step">Peek at solution (feels productive!)</span><span class="arr">→</span>
+      <span class="step">"Ohh, makes sense!"</span><span class="arr">→</span>
+      <span class="step bad">Next problem: stuck again</span>
+    </div>
+    <p style="margin-top:18px">The loop is self-reinforcing because the <strong>feelings lie to you</strong>: struggling feels like failure, and reading the solution feels like progress. So you bail out earlier each time.</p>
+    <p style="margin-top:12px"><strong>But every early peek skips exactly one rep of the skill you're missing.</strong> A hundred peeks later: great at reading, still frozen at blank files.</p>
+  </section>
+
+  <!-- 6 THE HIDDEN HARD PART -->
+  <section class="slide">
+    <div class="kicker">What's actually missing</div>
+    <h2>The solution hides the hard part</h2>
+    <p style="margin-bottom:6px">Solving = two jobs. The solution file only shows the <em>second</em> one:</p>
+    <div class="twocol">
+      <div>
+        <div class="label">Job 1 · Decomposition (invisible)</div>
+        <div class="fx">"count words appearing twice+"
+        ↓  hmm… I need word counts
+        ↓  a dict: word -> count
+        ↓  then keep counts >= 2</div>
+      </div>
+      <div>
+        <div class="label">Job 2 · The code (what you see)</div>
+        <div class="fx">counts = {}
+for w in words:
+    counts[w] = counts.get(w, 0) + 1
+repeats = [w for w, c
+           in counts.items() if c >= 2]</div>
+      </div>
+    </div>
+    <p style="margin-top:14px">When you read a solution, <strong>someone already did Job 1 for you</strong> — that's precisely why it reads so smoothly. Your gap is almost never Python syntax. It's decomposition: turning a fuzzy ask into steps.</p>
+  </section>
+
+  <!-- 7 THE FIX -->
+  <section class="slide">
+    <div class="kicker">The fix</div>
+    <h2>Change what counts as a "rep"</h2>
+    <div class="grid g2">
+      <div class="card"><h3>❌ Not a rep</h3><p>Lines of solution read. Videos watched. Tutorials followed along. All recognition — comfortable, and useless for generation.</p></div>
+      <div class="card"><h3>✅ A rep</h3><p>Minutes spent <em>stuck</em>, planning on paper, trying, failing, and trying again — <strong>before</strong> any solution. Uncomfortable, and it's the whole game.</p></div>
+    </div>
+    <p style="margin-top:16px">Research on learning calls this <strong>productive struggle</strong>: students who wrestle with a problem first learn <em>more from the very same solution</em> than students shown it immediately. The struggle isn't the obstacle to learning — it <em>is</em> the learning.</p>
+    <p style="margin-top:12px"><strong>Five rules make it concrete →</strong></p>
+  </section>
+
+  <!-- 8 RULE 1 -->
+  <section class="slide">
+    <div class="kicker">Rule 1 of 5</div>
+    <h2>Plan before code — English first</h2>
+    <p>No Python until the steps exist in plain English, written as comments in your file. (Days 1–5 students: this is the 5-step method — Understand → Example by hand → Plan → Code → Test.)</p>
+    <div class="fx"># STEP 1: split the text into words
+# STEP 2: count each word with a dict
+# STEP 3: keep the words with count >= 2
+def repeated_words(text):
+    ...</div>
+    <div class="eg"><span class="tag">Why this works</span>
+      <p><strong>If you can't write the plan, you've found your real gap</strong> — and it wasn't syntax. Now you know what to actually work on: trace an example by hand and watch what your own brain does. The plan <em>is</em> the program; the code just types it.</p></div>
+  </section>
+
+  <!-- 9 RULE 2 -->
+  <section class="slide">
+    <div class="kicker">Rule 2 of 5</div>
+    <h2>The 20-minute struggle timer</h2>
+    <p>No hints, no solutions, no "just a quick look" before <strong>20 minutes of genuine attempt</strong>. Planning on paper counts as attempting. Scrolling your phone doesn't.</p>
+    <ul class="clean">
+      <li>Minute 3 — "I have no idea." <span class="muted">Normal. Keep restating the problem.</span></li>
+      <li>Minute 8 — "Maybe if I…" <span class="muted">The decomposition muscle is now actually working.</span></li>
+      <li>Minute 15 — a half-plan exists. <span class="muted">This half-plan is worth more than ten read solutions.</span></li>
+    </ul>
+    <div class="action"><span class="tag">Say it with us</span>
+      <p>Stuck is not a signal that you're bad at this. Stuck is the rep.</p></div>
+  </section>
+
+  <!-- 10 RULE 3 -->
+  <section class="slide">
+    <div class="kicker">Rule 3 of 5</div>
+    <h2>Climb the hint ladder — don't jump off the cliff</h2>
+    <p>Going straight from "stuck" to "full solution" is an all-or-nothing cliff. A <strong>hint ladder</strong> unsticks you while leaving the decomposition to you. Read <em>one</em> rung, then go back and try:</p>
+    <div class="grid g3" style="margin-top:6px">
+      <div class="card"><h3>🪜 Hint 1</h3><p>Restates the problem + names the tool. <em>"You need to track two values while looping."</em></p></div>
+      <div class="card"><h3>🪜 Hint 2</h3><p>The plan in pseudocode — the shape of the answer, no Python yet.</p></div>
+      <div class="card"><h3>🪜 Hint 3</h3><p>Only the trickiest 2–3 lines. You still assemble the rest.</p></div>
+    </div>
+    <p style="margin-top:14px" class="muted">Every problem in today's session ships with exactly this ladder (<code>HINTS.md</code>). The full solution exists too — as a <strong>last resort</strong>, not the next step.</p>
+  </section>
+
+  <!-- 11 RULE 4 -->
+  <section class="slide">
+    <div class="kicker">Rule 4 of 5</div>
+    <h2>Read a solution? Fine — now <em>own</em> it</h2>
+    <p>Reading solutions isn't forbidden. Reading them <em>and stopping there</em> is. Two moves turn a read solution into a real rep:</p>
+    <div class="grid g2" style="margin-top:6px">
+      <div class="card"><h3>🔄 Cover &amp; rewrite</h3><p>Close the solution. Blank file. Rewrite the whole thing from memory <em>today</em>. Where you stall is exactly what you hadn't actually absorbed.</p></div>
+      <div class="card"><h3>🔀 Do the variant</h3><p>Immediately solve a twist: solved <em>second</em> largest? Now do <em>third</em>. Built the encoder? Write the decoder. Can't? You recognized it — you didn't own it.</p></div>
+    </div>
+    <div class="eg"><span class="tag">The honest test</span>
+      <p>"I understood the solution" is a feeling. "I rewrote it from blank and solved the variant" is evidence.</p></div>
+  </section>
+
+  <!-- 12 RULE 5 -->
+  <section class="slide">
+    <div class="kicker">Rule 5 of 5</div>
+    <h2>Trace before write</h2>
+    <p>Writing code means doing two jobs at once: <em>inventing</em> steps and <em>simulating</em> whether they work. If you can't mentally run code, your plans have nothing to check against — of course the blank file feels impossible.</p>
+    <div class="twocol" style="margin-top:8px">
+      <div>
+        <div class="label">The daily 5-minute drill</div>
+        <div class="fx">count = 0
+for ch in "banana":
+    if ch == "a": count += 1
+    else:         count = 0
+print(count)   # predict FIRST!</div>
+      </div>
+      <div>
+        <div class="label">Why it compounds</div>
+        <ul class="clean" style="margin-top:0">
+          <li>Predict on paper → run → compare.</li>
+          <li>Wrong? You just found a precise gap in your mental model — free.</li>
+          <li>A fast, trusted simulator makes planning dramatically easier.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 TODAY -->
+  <section class="slide">
+    <div class="kicker">Right now</div>
+    <h2>Today's session — rules in force</h2>
+    <div class="action">
+      <span class="tag">⏱ The next 2+ hours</span>
+      <p>Warm-up: 5 trace-before-write snippets. Then 5 problems, easiest → hardest — each with a plan-first stub, a 3-rung hint ladder, a solution (last resort) and a variant (homework).</p>
+    </div>
+    <div style="margin-top:16px">
+      <span class="pill">1 · Plan before code</span><span class="pill">2 · 20-min struggle timer</span><span class="pill">3 · Climb hints</span><span class="pill">4 · Rewrite + variant</span><span class="pill">5 · Trace first</span>
+    </div>
+    <p style="margin-top:16px" class="muted">Trainers will answer questions <em>with questions</em> ("what does step 2 of your plan say?"). That's not us being difficult — handing you the step would steal your rep.</p>
+  </section>
+
+  <!-- 14 BEYOND TODAY -->
+  <section class="slide">
+    <div class="kicker">Beyond today</div>
+    <h2>This is how you practice from now on — everywhere</h2>
+    <ul class="clean">
+      <li class="ok"><strong>Every exercise, every course, every language:</strong> plan first, struggle 20, climb hints, rewrite + variant.</li>
+      <li class="ok"><strong>One or two problems a day</strong> beats a weekend binge — generation grows by frequency, not volume.</li>
+      <li class="ok"><strong>Re-solve old problems</strong> from blank a week later. If it flows, it's yours now.</li>
+      <li class="x"><strong>Watch out for AI autocomplete too</strong> — accepting generated code you couldn't have written is the same trap with better tooling. Use AI to <em>review</em> your plan, not to replace it.</li>
+    </ul>
+  </section>
+
+  <!-- 15 CLOSE -->
+  <section class="slide cover">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Problem-Solving Bootcamp</span></div>
+    <h1>Reading code grows <em>understanding.</em><br>Writing code grows <em>programmers.</em></h1>
+    <p class="lead" style="margin-top:18px">You were never bad at this. You were just counting the wrong reps. Timer starts now — go get stuck.</p>
+    <div class="footer-note">Stuck is the rep.</div>
+  </section>
+
+</div>
+
+<div class="count" id="count">1 / 15</div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="full" aria-label="Fullscreen">⛶</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const bar=document.getElementById('bar'),count=document.getElementById('count');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';count.textContent=(i+1)+' / '+slides.length;}
+  function next(){show(i+1)}function prev(){show(i-1)}
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')next();
+    else if(e.key==='ArrowLeft')prev();
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')document.getElementById('full').click();});
+  document.getElementById('stage').addEventListener('click',e=>{
+    if(e.target.closest('.nav'))return;const x=e.clientX/window.innerWidth;x>0.5?next():prev();});
+  show(0);
+</script>
+</body>
+</html>

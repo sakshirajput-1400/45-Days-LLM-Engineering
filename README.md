@@ -22,6 +22,11 @@ folder and is broken into small, numbered, runnable modules so you can learn one
 > (build-in-public + specialization). Plan: [`CAREER-PLAN.md`](CAREER-PLAN.md). Each day's deck lives
 > in that day's `career-talk/` folder.
 
+> 🧠 **Problem-Solving Bootcamp** — a standalone 3-hour session for the classic wall: *"I understand
+> every solution instantly, but I can't write one myself."* Deck + trace warm-up + 5 problems with
+> plan-first stubs and hint ladders: [`Problem-Solving-Bootcamp/`](Problem-Solving-Bootcamp/).
+> Run it any time; it's about programming in general, not any course day.
+
 Inside every day:
 
 ```
