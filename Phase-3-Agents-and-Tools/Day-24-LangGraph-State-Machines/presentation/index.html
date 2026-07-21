@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LangGraph: State Machines for AI · Day 24 · Softpro School of AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --bg:#211f1d; --slide:#ffffff; --cream:#fbf1e6; --cream2:#fdf8f1;
+    --ink:#2c2a28; --ink-soft:#4f463f; --muted:#8a7f73; --line:#efe3d4;
+    --primary:#e8590c; --primary2:#fb8b3d; --gold:#d99000; --steel:#4e6e81; --olive:#6b8e23; --berry:#c0392b;
+    --radius:24px;
+    --shadow:0 30px 80px -20px rgba(20,12,4,.45),0 8px 24px -12px rgba(20,12,4,.3);
+    --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:radial-gradient(900px 600px at 12% 0%,#2e2a25 0%,transparent 55%),
+               radial-gradient(900px 600px at 100% 100%,#2a201a 0%,transparent 55%),var(--bg);
+    overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,44px)}
+  .slide{display:none;width:min(1160px,96vw);height:min(700px,92vh);background:
+      radial-gradient(1100px 480px at 88% -12%,rgba(232,89,12,.06),transparent 60%),var(--slide);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(28px,5vw,60px);
+    overflow:hidden;position:relative;flex-direction:column;justify-content:center}
+  .slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide.active>*{animation:fade .6s both}.slide.active>*:nth-child(2){animation-delay:.07s}
+  .slide.active>*:nth-child(3){animation-delay:.14s}.slide.active>*:nth-child(4){animation-delay:.21s}
+  .slide.active>*:nth-child(5){animation-delay:.28s}.slide.active>*:nth-child(6){animation-delay:.35s}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h1{font-size:clamp(2.1rem,5.2vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin-bottom:18px}
+  p{font-size:clamp(1rem,1.7vw,1.22rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+  .lead{font-size:clamp(1.1rem,2vw,1.4rem)}
+  strong{color:var(--ink)}.muted{color:var(--muted)}
+  .grid{display:grid;gap:16px;margin-top:8px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:18px 20px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px -16px rgba(20,12,4,.35)}
+  .card h3{font-size:1.08rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.96rem;max-width:none}
+  .pill{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:7px 16px;font-size:.92rem;font-weight:600;color:var(--ink-soft);margin:5px 6px 0 0}
+  ul.clean{list-style:none;margin-top:10px}
+  ul.clean li{font-size:clamp(1rem,1.7vw,1.18rem);color:var(--ink-soft);line-height:1.5;padding:8px 0 8px 34px;position:relative}
+  ul.clean li::before{content:"";position:absolute;left:0;top:15px;width:14px;height:14px;border-radius:50%;
+    background:var(--primary);box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+  ul.clean li.x::before{background:var(--berry);box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+  ul.clean li.ok::before{background:var(--olive);box-shadow:0 0 0 4px rgba(107,142,35,.15)}
+  .fx{font-family:var(--mono);font-size:.98rem;background:var(--cream);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin-top:10px;color:var(--ink);line-height:1.7;white-space:pre}
+  .action{background:linear-gradient(135deg,#fff,var(--cream2));border:2px solid var(--primary);
+    border-radius:20px;padding:22px 24px;margin-top:14px}
+  .action .tag{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .action p{font-size:1.12rem;color:var(--ink);font-weight:600;margin-top:6px;max-width:none}
+  .eg{background:var(--cream2);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:12px;padding:13px 16px;margin-top:14px}
+  .eg .tag{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+  .eg p{font-size:.98rem;max-width:none;margin:0;color:var(--ink-soft)}
+  .eg code,.card code,p code,li code{font-family:var(--mono);background:rgba(217,144,0,.12);padding:1px 5px;border-radius:5px;font-size:.9em;color:var(--ink)}
+  .cover{background:radial-gradient(1200px 500px at 20% -10%,rgba(232,89,12,.16),transparent 60%),
+      radial-gradient(900px 500px at 100% 120%,rgba(217,144,0,.12),transparent 55%),var(--slide)}
+  .brandbar{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--primary)}
+  .brandbar span{font-weight:700;letter-spacing:.02em}
+  .cover h1 em{font-style:normal;color:var(--primary)}
+  .footer-note{margin-top:auto;color:var(--muted);font-size:.95rem}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center}
+  .label{font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--primary2));z-index:9;transition:width .3s}
+  .count{position:fixed;left:18px;bottom:14px;color:var(--cream);font-size:.85rem;font-weight:600;opacity:.8;z-index:9;font-variant-numeric:tabular-nums}
+  .nav{position:fixed;right:18px;bottom:14px;display:flex;gap:8px;z-index:9}
+  .nav button{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.2)}
+  .hint{position:fixed;right:18px;top:16px;color:var(--cream);font-size:.78rem;opacity:.5;z-index:9}
+  .diagram{display:flex;justify-content:center;align-items:center;margin-top:8px}
+  .diagram svg{max-width:100%;height:auto}
+  .cap{text-align:center;color:var(--muted);font-size:.9rem;margin-top:6px}
+  .pipe{display:flex;align-items:stretch;gap:0;margin-top:14px;flex-wrap:wrap}
+  .pipe .stepbox{flex:1;min-width:110px;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:14px 12px;text-align:center}
+  .pipe .stepbox.model{border-color:var(--primary);background:#fde7d6}
+  .pipe .stepbox h4{font-size:1rem;font-weight:800;color:var(--ink)}
+  .pipe .stepbox small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+  .pipe .arrow{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800;color:var(--primary);font-size:1.5rem;padding:0 8px}
+  table.cmp{width:100%;border-collapse:collapse;margin-top:12px;font-size:1rem}
+  table.cmp th,table.cmp td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  table.cmp th{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  table.cmp td.no{color:var(--berry);font-weight:700}
+  table.cmp td.yes{color:var(--olive);font-weight:700}
+  @media(max-width:640px){.g2,.g3,.g4,.twocol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="hint">→ / Space to advance · F for fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1 COVER -->
+  <section class="slide cover active">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 24</span></div>
+    <div class="kicker">Phase 3 · Agents &amp; Tools</div>
+    <h1>LangGraph:<br>when a <em>line</em> becomes a <em>map</em></h1>
+    <p class="lead" style="margin-top:18px">LCEL chains run left to right, once. Real AI apps need to <strong>branch</strong>, <strong>loop</strong>, and <strong>remember</strong>. LangGraph models your app as a graph of small functions sharing one state — the engine real agents run on.</p>
+    <div class="footer-note">State + Nodes + Edges · runs on free Groq · the runtime behind Day 25's ReAct agent.</div>
+  </section>
+
+  <!-- 2 THE WALL -->
+  <section class="slide">
+    <div class="kicker">Where we hit a wall</div>
+    <h2>Three things a <span style="font-family:var(--mono)">|</span> chain cannot do</h2>
+    <p>Day 21's <code>prompt | model | parser</code> is a <strong>straight line</strong>: data flows one way, one time. But listen to what real apps ask for:</p>
+    <ul class="clean">
+      <li class="x"><strong>Branch</strong> — "if it's a refund question, send it to billing; if it's a crash, to tech support."</li>
+      <li class="x"><strong>Loop</strong> — "if the answer isn't good enough, try again" (Day 23's tool loop was a hand-written <code>while</code>!).</li>
+      <li class="x"><strong>Remember</strong> — "continue the conversation where we left off yesterday."</li>
+    </ul>
+    <div class="eg">
+      <span class="tag">The tell</span>
+      <p>The moment your app description contains <em>"if"</em>, <em>"until"</em>, or <em>"remember"</em> — a straight chain is the wrong shape. You need a <strong>graph</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 3 WHAT IS LANGGRAPH -->
+  <section class="slide">
+    <div class="kicker">The one big idea</div>
+    <h2>Your app = a flowchart that runs</h2>
+    <p>LangGraph lets you draw your app as a <strong>flowchart in code</strong>: boxes (steps) and arrows (what runs next), all reading and writing one shared notebook (the state). Then it executes that flowchart for you.</p>
+    <div class="diagram" style="margin-top:10px">
+      <svg viewBox="0 0 860 190" width="860" height="190" role="img" aria-label="A LangGraph: START to classify, branching to billing or tech, both to END, with a loop on tech">
+        <defs><marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+        <g font-family="Plus Jakarta Sans" font-size="14" font-weight="700" text-anchor="middle">
+          <circle cx="60" cy="95" r="26" fill="#fbf1e6" stroke="#efe3d4"/><text x="60" y="100" font-size="11" fill="#8a7f73">START</text>
+          <rect x="150" y="67" width="140" height="56" rx="14" fill="#fde7d6" stroke="#e8590c"/><text x="220" y="99" fill="#e8590c">classify</text>
+          <rect x="390" y="12" width="140" height="56" rx="14" fill="#fbf1e6" stroke="#efe3d4"/><text x="460" y="44" fill="#2c2a28">billing</text>
+          <rect x="390" y="122" width="140" height="56" rx="14" fill="#eef3f1" stroke="#6b8e23"/><text x="460" y="154" fill="#3f5a18">tech support</text>
+          <circle cx="700" cy="95" r="26" fill="#fbf1e6" stroke="#efe3d4"/><text x="700" y="100" font-size="11" fill="#8a7f73">END</text>
+          <path d="M86 95 L 146 95" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#arA)"/>
+          <path d="M290 80 Q 340 55 386 44" fill="none" stroke="#e8590c" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arA)"/>
+          <path d="M290 110 Q 340 135 386 146" fill="none" stroke="#e8590c" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arA)"/>
+          <path d="M530 40 Q 630 55 678 78" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#arA)"/>
+          <path d="M530 150 Q 630 135 678 112" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#arA)"/>
+          <path d="M470 122 Q 500 90 470 68 Q 445 52 430 66" fill="none" stroke="#6b8e23" stroke-width="2" marker-end="url(#arA)" transform="translate(0,56)" opacity="0"/>
+          <text x="335" y="30" font-size="12" font-weight="600" fill="#e8590c">a choice, made at runtime</text>
+        </g>
+      </svg>
+    </div>
+    <p class="cap">Dashed arrows = a <strong>decision</strong>. Which path runs is decided by your data, while the app runs.</p>
+  </section>
+
+  <!-- 4 THREE WORDS -->
+  <section class="slide">
+    <div class="kicker">The whole framework in 3 words</div>
+    <h2>State · Node · Edge</h2>
+    <div class="grid g3" style="margin-top:8px">
+      <div class="card"><h3>📓 State</h3><p>One shared dictionary that flows through the graph. Every step reads it, every step can update it. <span style="display:block;margin-top:6px"><code>class State(TypedDict)</code></span></p></div>
+      <div class="card"><h3>🔧 Node</h3><p>A plain Python function: state in → <strong>the keys it changed</strong> out. No magic, no classes to inherit. <span style="display:block;margin-top:6px"><code>def step(state) -&gt; dict</code></span></p></div>
+      <div class="card"><h3>🔀 Edge</h3><p>A wire: "after this node, run that one." Fixed (<code>add_edge</code>) or a runtime <strong>choice</strong> (<code>add_conditional_edges</code>).</p></div>
+    </div>
+    <div class="action">
+      <span class="tag">Say it back</span>
+      <p>Nodes are functions. Edges are wires. State is a dict. <strong>Everything else today is detail.</strong></p>
+    </div>
+  </section>
+
+  <!-- 5 STATE -->
+  <section class="slide">
+    <div class="kicker">Piece 1 · State</div>
+    <h2>One notebook, passed hand to hand</h2>
+    <div class="twocol">
+      <div>
+        <div class="fx">from typing import TypedDict
+
+class State(TypedDict):
+    message: str    # what came in
+    category: str   # filled by classify
+    reply: str      # filled by a handler</div>
+      </div>
+      <div>
+        <p>The state is the <strong>contract</strong> between your nodes: it lists every field any step may read or write.</p>
+        <p style="margin-top:10px"><code>TypedDict</code> (Day 8!) means it's still just a dict at runtime — but your editor and LangGraph both know its shape.</p>
+      </div>
+    </div>
+    <div class="eg">
+      <span class="tag">Mental picture</span>
+      <p>Imagine a <strong>case file</strong> at a support desk. Each employee (node) reads the file, writes their bit, and passes it on. Nobody carries private notes — everything lives in the file.</p>
+    </div>
+  </section>
+
+  <!-- 6 NODES -->
+  <section class="slide">
+    <div class="kicker">Piece 2 · Nodes</div>
+    <h2>A node returns only what it changed</h2>
+    <div class="fx">def classify(state: State) -> dict:
+    text = state["message"].lower()          # READ anything
+    category = "billing" if "refund" in text else "general"
+    return {"category": category}            # WRITE only your keys</div>
+    <p style="margin-top:12px">You do <strong>not</strong> return the whole state. Return a small dict of the keys you changed; LangGraph <strong>merges</strong> it into the state before the next node runs.</p>
+    <div class="grid g2" style="margin-top:8px">
+      <div class="card"><h3>✅ Do</h3><p><code>return {"category": "billing"}</code> — small, honest, mergeable.</p></div>
+      <div class="card"><h3>❌ Don't</h3><p>Mutate <code>state</code> in place, or return unrelated keys. Updates should say exactly what changed.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 THE RECIPE -->
+  <section class="slide">
+    <div class="kicker">Piece 3 · Edges — and the full recipe</div>
+    <h2>Every graph you'll ever build, in 6 lines</h2>
+    <div class="fx">from langgraph.graph import StateGraph, START, END
+
+builder = StateGraph(State)          # 1. what shape is the state?
+builder.add_node("classify", classify)   # 2. steps (name + function)
+builder.add_edge(START, "classify")      # 3. wires
+builder.add_edge("classify", END)
+graph = builder.compile()            # 4. freeze it into a runnable app
+graph.invoke({"message": "hi"})      # 5. run: dict in -> final state out</div>
+    <div class="eg">
+      <span class="tag">Familiar?</span>
+      <p>The compiled graph is a <strong>Runnable</strong> — the same <code>.invoke()</code> / <code>.stream()</code> interface as every LCEL chain from Day 21. A graph <em>is</em> a chain that learned new moves.</p>
+    </div>
+  </section>
+
+  <!-- 8 CONDITIONAL EDGES -->
+  <section class="slide">
+    <div class="kicker">Move 1 · Branching</div>
+    <h2>Conditional edges: the graph chooses</h2>
+    <div class="twocol">
+      <div>
+        <div class="fx">def route(state) -> str:
+    return state["category"]
+
+builder.add_conditional_edges(
+    "classify",       # after this node
+    route,            # ...call this
+    {"billing": "billing",
+     "technical": "technical",
+     "general": "general"})</div>
+      </div>
+      <div>
+        <p>A <strong>router</strong> is a tiny function that looks at the state and returns a <strong>name</strong>. The map turns that name into the next node.</p>
+        <ul class="clean">
+          <li>Nodes <strong>change state</strong>; routers <strong>pick paths</strong>. Keep the jobs separate.</li>
+          <li>Today the router is an <code>if</code>. On Day 25, <strong>the model</strong> makes this choice — same wiring.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CYCLES -->
+  <section class="slide">
+    <div class="kicker">Move 2 · Loops</div>
+    <h2>An arrow pointing backward = "try again"</h2>
+    <div class="diagram" style="margin-top:4px">
+      <svg viewBox="0 0 820 200" width="820" height="200" role="img" aria-label="Loop: draft to check, check loops back to draft or exits to END">
+        <defs><marker id="arB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+        <g font-family="Plus Jakarta Sans" font-size="15" font-weight="700" text-anchor="middle">
+          <rect x="120" y="70" width="160" height="60" rx="14" fill="#fde7d6" stroke="#e8590c"/><text x="200" y="96" fill="#e8590c">✍️ draft</text><text x="200" y="116" font-size="11" font-weight="500" fill="#8a7f73">make an attempt</text>
+          <rect x="420" y="70" width="160" height="60" rx="14" fill="#fbf1e6" stroke="#efe3d4"/><text x="500" y="96" fill="#2c2a28">🔍 check</text><text x="500" y="116" font-size="11" font-weight="500" fill="#8a7f73">good enough?</text>
+          <circle cx="720" cy="100" r="28" fill="#eef3f1" stroke="#6b8e23"/><text x="720" y="105" font-size="12" fill="#3f5a18">END</text>
+          <path d="M280 100 L 416 100" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#arB)"/>
+          <path d="M580 100 L 688 100" fill="none" stroke="#6b8e23" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arB)"/>
+          <path d="M480 70 Q 420 10 280 40 Q 230 52 210 66" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arB)"/>
+          <text x="360" y="26" font-size="12" font-weight="600" fill="#c0392b">not yet → go around again</text>
+          <text x="636" y="86" font-size="12" font-weight="600" fill="#6b8e23">done</text>
+        </g>
+      </svg>
+    </div>
+    <div class="fx" style="margin-top:6px">builder.add_conditional_edges("check", keep_going,
+    {"loop": "draft",    # ← backward edge: the cycle
+     "done": END})</div>
+    <p class="cap"><strong>Always give a loop a way out</strong>: an attempt counter in state + LangGraph's <code>recursion_limit</code> as the seatbelt.</p>
+  </section>
+
+  <!-- 10 REDUCERS -->
+  <section class="slide">
+    <div class="kicker">Move 3 · Accumulating state</div>
+    <h2>Reducers: append, don't overwrite</h2>
+    <p>By default a node's update <strong>replaces</strong> a field. For lists — a chat history, an event log — you want updates to <strong>add on</strong>. A <em>reducer</em> annotation tells LangGraph how to merge.</p>
+    <div class="twocol" style="margin-top:6px">
+      <div>
+        <div class="label">Default — last write wins</div>
+        <div class="fx">class State(TypedDict):
+    log: list
+# node returns {"log": ["b"]}
+# state["log"] == ["b"]  😬 lost "a"</div>
+      </div>
+      <div>
+        <div class="label">With a reducer — it appends</div>
+        <div class="fx">from operator import add
+class State(TypedDict):
+    log: Annotated[list, add]
+# node returns {"log": ["b"]}
+# state["log"] == ["a", "b"] ✅</div>
+      </div>
+    </div>
+    <div class="eg">
+      <span class="tag">For chat, it's prewritten</span>
+      <p><code>add_messages</code> is the reducer for conversations, and <code>MessagesState</code> is a ready-made state with <code>messages: Annotated[list, add_messages]</code> already inside. Day 16's "append every turn" — now automatic.</p>
+    </div>
+  </section>
+
+  <!-- 11 MEMORY -->
+  <section class="slide">
+    <div class="kicker">Move 4 · Memory across calls</div>
+    <h2>Checkpointer + thread_id = a bot that remembers</h2>
+    <div class="twocol">
+      <div>
+        <div class="fx">from langgraph.checkpoint.memory \
+    import MemorySaver
+
+graph = builder.compile(
+    checkpointer=MemorySaver())
+
+cfg = {"configurable":
+       {"thread_id": "aditi"}}
+graph.invoke(
+  {"messages": [("human", "Hi!")]},
+  cfg)   # send ONLY the new msg</div>
+      </div>
+      <div>
+        <ul class="clean">
+          <li>The <strong>checkpointer</strong> saves the state after every step.</li>
+          <li>The <strong>thread_id</strong> names the conversation. Same id → history reloads; new id → clean slate.</li>
+          <li>Each turn you send <strong>only the new message</strong> — the graph brings back the rest.</li>
+        </ul>
+        <div class="eg" style="margin-top:10px">
+          <span class="tag">Scale it later</span>
+          <p><code>MemorySaver</code> = RAM. Swap in a SQLite/Postgres saver and the same code survives restarts. That one line is your upgrade path.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 CHAIN VS GRAPH -->
+  <section class="slide">
+    <div class="kicker">Put side by side</div>
+    <h2>Chain vs graph — when to reach for which</h2>
+    <table class="cmp">
+      <tr><th>You need to…</th><th>LCEL chain</th><th>LangGraph</th></tr>
+      <tr><td>Run fixed steps in order (prompt → model → parser, RAG)</td><td class="yes">✅ simplest</td><td class="yes">✅ works</td></tr>
+      <tr><td>Branch on the data at runtime</td><td class="no">❌</td><td class="yes">✅ conditional edges</td></tr>
+      <tr><td>Loop until a condition is met</td><td class="no">❌</td><td class="yes">✅ cycles</td></tr>
+      <tr><td>Remember across <code>.invoke()</code> calls</td><td class="no">painful</td><td class="yes">✅ checkpointer</td></tr>
+      <tr><td>Let the model decide the next step (an agent)</td><td class="no">❌</td><td class="yes">✅ Day 25</td></tr>
+    </table>
+    <p class="cap">Rule of thumb: straight line → chain. Any <em>"if / until / remember"</em> → graph.</p>
+  </section>
+
+  <!-- 13 MINI PROJECT -->
+  <section class="slide">
+    <div class="kicker">Today's build · mini-project</div>
+    <h2>One example, scaled up 6 times</h2>
+    <p>We build <strong>SoftKart Support Desk</strong> — a customer-support assistant for an Indian online store — and grow it one concept at a time. Same example start to finish; each step adds exactly one new move.</p>
+    <div class="pipe" style="margin-top:14px">
+      <div class="stepbox"><h4>1</h4><small>one node<br>hello, graph</small></div>
+      <div class="arrow">→</div>
+      <div class="stepbox"><h4>2</h4><small>pipeline<br>state + nodes</small></div>
+      <div class="arrow">→</div>
+      <div class="stepbox"><h4>3</h4><small>routing<br>branch by intent</small></div>
+      <div class="arrow">→</div>
+      <div class="stepbox"><h4>4</h4><small>quality loop<br>redraft until good</small></div>
+      <div class="arrow">→</div>
+      <div class="stepbox"><h4>5</h4><small>case log<br>reducers</small></div>
+      <div class="arrow">→</div>
+      <div class="stepbox model"><h4>6</h4><small>chatbot<br>memory + Groq</small></div>
+    </div>
+    <p class="cap">Steps 1–5 run with <strong>no API key</strong>. Step 6 talks to Groq (and still demos offline). Folder: <code>mini-project/</code></p>
+  </section>
+
+  <!-- 14 ROADMAP -->
+  <section class="slide">
+    <div class="kicker">Why this matters · the road ahead</div>
+    <h2>Today is the engine; Day 25 turns the key</h2>
+    <div class="diagram" style="margin-top:6px">
+      <svg viewBox="0 0 860 150" width="860" height="150" role="img" aria-label="Roadmap: Day 23 tools, Day 24 LangGraph engine, Day 25 ReAct agent">
+        <defs><marker id="arC" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+        <g font-family="Plus Jakarta Sans" font-size="13" font-weight="700" text-anchor="middle">
+          <rect x="40" y="55" width="200" height="48" rx="12" fill="#fbf1e6" stroke="#efe3d4"/><text x="140" y="79" fill="#2c2a28">Day 23 · Tools</text><text x="140" y="95" font-size="11" font-weight="500" fill="#8a7f73">the hands (@tool, bind_tools)</text>
+          <rect x="330" y="55" width="200" height="48" rx="12" fill="#fde7d6" stroke="#e8590c"/><text x="430" y="79" fill="#e8590c">Day 24 · LangGraph</text><text x="430" y="95" font-size="11" font-weight="500" fill="#8a7f73">the engine (loops + state)</text>
+          <rect x="620" y="55" width="200" height="48" rx="12" fill="#eef3f1" stroke="#6b8e23"/><text x="720" y="79" fill="#3f5a18">Day 25 · ReAct Agent</text><text x="720" y="95" font-size="11" font-weight="500" fill="#8a7f73">hands + engine = it acts</text>
+          <line x1="240" y1="79" x2="326" y2="79" stroke="#8a7f73" stroke-width="2" marker-end="url(#arC)"/>
+          <line x1="530" y1="79" x2="616" y2="79" stroke="#8a7f73" stroke-width="2" marker-end="url(#arC)"/>
+        </g>
+      </svg>
+    </div>
+    <p style="margin-top:10px">Day 23's tool-calling loop was a hand-written <code>while</code>. Look again at today's cycle slide — <strong>that <code>while</code> is just a graph with a backward edge</strong>. Day 25's <code>create_agent</code> builds exactly that graph for you: model node → tools node → loop until the model says done.</p>
+  </section>
+
+  <!-- 15 RECAP -->
+  <section class="slide">
+    <div class="kicker">Recap</div>
+    <h2>Six things to walk away with</h2>
+    <ul class="clean">
+      <li><strong>State</strong> is a shared <code>TypedDict</code>; <strong>nodes</strong> are functions returning only the keys they changed; <strong>edges</strong> are wires.</li>
+      <li>The recipe: <code>StateGraph → add_node → add_edge → compile → invoke</code>.</li>
+      <li><strong>Branch</strong> with <code>add_conditional_edges</code> + a router that returns a name.</li>
+      <li><strong>Loop</strong> with an edge pointing backward — and always an exit + attempt cap.</li>
+      <li>Make lists <strong>accumulate</strong> with reducers: <code>Annotated[list, add]</code>, <code>add_messages</code>, <code>MessagesState</code>.</li>
+      <li><strong>Remember</strong> with <code>compile(checkpointer=…)</code> + a <code>thread_id</code> per conversation.</li>
+    </ul>
+  </section>
+
+  <!-- 16 YOUR MOVE -->
+  <section class="slide">
+    <div class="kicker">Your move today</div>
+    <h2>Modules → mini-project → exercises</h2>
+    <div class="action">
+      <span class="tag">⏱ Practice now</span>
+      <p>Run modules <code>01 → 06</code> (01–05 need no key), then build the <strong>SoftKart Support Desk</strong> step by step in <code>mini-project/</code>, then do the two <code>exercises/</code>.</p>
+    </div>
+    <div style="margin-top:16px">
+      <span class="pill">01 · why langgraph</span><span class="pill">02 · state &amp; nodes</span><span class="pill">03 · conditional edges</span><span class="pill">04 · cycles &amp; loops</span><span class="pill">05 · reducers</span><span class="pill">06 · chatbot memory</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="pill" style="border-color:var(--primary);color:var(--primary)">mini-project · steps 1–6</span>
+      <span class="pill">exercise · ticket router</span><span class="pill">exercise · retry loop</span>
+    </div>
+  </section>
+
+  <!-- 17 CLOSE -->
+  <section class="slide cover">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 24</span></div>
+    <h1>Nodes are functions.<br>Edges are wires.<br><em>State is a dict.</em></h1>
+    <p class="lead" style="margin-top:18px">Once your app can decide what to do next — branch, retry, remember — it stops being a Q&amp;A bot and starts being an <strong>agent</strong>. Tomorrow we hand that decision to the model.</p>
+    <div class="footer-note">Next (Day 25): the ReAct agent — Day 23's tools running on today's engine, via <code style="background:none;color:inherit">create_agent</code>.</div>
+  </section>
+
+</div>
+
+<div class="count" id="count">1 / 17</div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="full" aria-label="Fullscreen">⛶</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const bar=document.getElementById('bar'),count=document.getElementById('count');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';count.textContent=(i+1)+' / '+slides.length;}
+  function next(){show(i+1)}function prev(){show(i-1)}
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')next();
+    else if(e.key==='ArrowLeft')prev();
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')document.getElementById('full').click();});
+  document.getElementById('stage').addEventListener('click',e=>{
+    if(e.target.closest('.nav'))return;const x=e.clientX/window.innerWidth;x>0.5?next():prev();});
+  show(0);
+</script>
+</body>
+</html>

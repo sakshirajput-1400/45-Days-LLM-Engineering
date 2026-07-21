@@ -51,6 +51,13 @@ By the end of today you can:
 | Day 8   | Type hints / `TypedDict` — now to define the **State**      |
 | Day 5   | Functions in, values out — a **node** is just a function    |
 
+## Start here
+1. **Slides:** open [`presentation/index.html`](presentation/index.html) — *LangGraph: when a line
+   becomes a map* (17 slides; speaker notes in [`presentation/README.md`](presentation/README.md)).
+2. **Concepts:** run the modules `01 → 06` below.
+3. **Build:** the [`mini-project/`](mini-project/README.md) — **SoftKart Support Desk**, one example
+   scaled from a single node to a routing, self-reviewing, remembering chatbot in 6 steps.
+
 ## Module index
 | # | Folder | You learn |
 |---|--------|-----------|
@@ -60,6 +67,11 @@ By the end of today you can:
 | 04 | [`04-cycles-and-loops/`](04-cycles-and-loops/README.md) | The move a chain can't make — a node that loops until done |
 | 05 | [`05-reducers-and-messages/`](05-reducers-and-messages/README.md) | Reducers (`Annotated[list, add]`, `add_messages`) — state that accumulates |
 | 06 | [`06-chatbot-with-memory/`](06-chatbot-with-memory/README.md) | A real Groq chatbot that remembers: `MemorySaver` + `thread_id` |
+
+### Mini-project (today's build)
+| Folder | Build |
+|--------|-------|
+| [`mini-project/`](mini-project/README.md) | **SoftKart Support Desk** — 6 steps: hello-graph → pipeline → routing → quality loop → case log (reducers) → Groq chatbot with per-customer memory. Steps 1–5 need no key. |
 
 ### Exercises
 | Folder | Practise |

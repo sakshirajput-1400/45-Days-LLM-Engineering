@@ -23,6 +23,8 @@ def is_balanced(text):
 
 
 # ---- STEP 5 (Test): run this file. All six lines should say OK. ----
+#}{ 
+#{)()}
 if __name__ == "__main__":
     tests = [
         ("({[]})", True),

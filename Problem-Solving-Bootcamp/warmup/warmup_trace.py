@@ -40,7 +40,10 @@ nums = [3, 8, 2]
 nums.append(nums[0])
 nums[0] = 9
 print(nums)
-
+#9382
+#9828
+#9823
+#93823
 
 print()
 print("=" * 50)
